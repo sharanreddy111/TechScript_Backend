@@ -1,4 +1,5 @@
 package com.techscript.blog.payloads;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -11,19 +12,19 @@ import lombok.Setter;
 @Setter
 public class UserDTO {
 
-    private int id;
+    private int userId;
 
     @NotEmpty
     @Size(min = 4,message = "Username must be min of 4 characters")
-    private String name;
+    private String userName;
 
     @Email(message = "Email Address is not valid !")
-    private String email;
+    private String userEmail;
 
     @NotEmpty
     @Size(min = 3, max = 10, message = "Password must be between 3 and 10 characters")
-    private String password;
+    private String userPassword;
 
     @NotEmpty
-    private String about;
+    private String aboutUser;
 }

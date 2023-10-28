@@ -1,18 +1,14 @@
 package com.techscript.blog.services.impl;
 
 import com.techscript.blog.entities.Category;
-import com.techscript.blog.entities.User;
 import com.techscript.blog.exceptions.ResourceNotFoundException;
 import com.techscript.blog.payloads.CategoryDTO;
-import com.techscript.blog.payloads.UserDTO;
 import com.techscript.blog.repositories.CategoryRepository;
 import com.techscript.blog.services.CategoryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -25,23 +21,22 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
-        Category category = this.modelMapper.map(categoryDTO, Category.class); //DtoToEntity
+        Category category = this.dtoToEntity(categoryDTO);
         Category savedCategory = this.categoryRepository.save(category);
-        return this.modelMapper.map(savedCategory, CategoryDTO.class);  //EntityToDto
+        return this.entityToDto(savedCategory);
     }
 
     @Override
     public CategoryDTO updateCategory(CategoryDTO categoryDTO, Integer categoryId) {
-
         Category category = this.categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "Category Id", categoryId));
 
-        category.setCategoryTitle(category.getCategoryTitle());
-        category.setCategoryDescription(category.getCategoryDescription());
+        category.setCategoryTitle(categoryDTO.getCategoryTitle());
+        category.setCategoryDescription(categoryDTO.getCategoryDescription());
 
         Category updatedCategory = this.categoryRepository.save(category);
         
-        return this.modelMapper.map(updatedCategory, CategoryDTO.class);
+        return this.entityToDto(updatedCategory);
     }
 
     @Override
@@ -55,14 +50,20 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDTO getCategoryById(Integer categoryId) {
         Category category = this.categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "category id", categoryId));
-        return this.modelMapper.map(category, CategoryDTO.class);
+        return this.entityToDto(category);
     }
 
     @Override
     public List<CategoryDTO> getAllCategories() {
         List<Category> categories = this.categoryRepository.findAll();
-        List<CategoryDTO> categoryDTOs = categories.stream().map((category -> this.modelMapper.map(category, CategoryDTO.class)))
-                .collect(Collectors.toList());
-        return categoryDTOs;
+        return categories.stream().map(this::entityToDto).toList();
+    }
+
+    public Category dtoToEntity(CategoryDTO categoryDTO){
+        return this.modelMapper.map(categoryDTO,Category.class);
+    }
+
+    public CategoryDTO entityToDto(Category category){
+        return this.modelMapper.map(category, CategoryDTO.class);
     }
 }

@@ -8,9 +8,7 @@ import com.techscript.blog.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -23,26 +21,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO createUser(UserDTO userDTO) {
-        User user = this.dtoToUser(userDTO);
+        User user = this.dtoToEntity(userDTO);
         User savedUser = this.userRepository.save(user);
-        return this.userToDto(savedUser);
+        return this.entityToDto(savedUser);
     }
 
     @Override
     public UserDTO updateUser(UserDTO userDTO, Integer userId) {
-
         User user = this.userRepository.findById(userId)
-                .orElseThrow((() -> new ResourceNotFoundException("User","Id", userId)));
+                .orElseThrow((() -> new ResourceNotFoundException("User","UserId", userId)));
 
-        user.setName(userDTO.getName());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
-        user.setAbout(userDTO.getAbout());
+        user.setUserName(userDTO.getUserName());
+        user.setUserEmail(userDTO.getUserEmail());
+        user.setUserPassword(userDTO.getUserPassword());
+        user.setAboutUser(userDTO.getAboutUser());
 
         User updatedUser = this.userRepository.save(user);
 
-        return this.userToDto(updatedUser);
-
+        return this.entityToDto(updatedUser);
     }
 
     @Override
@@ -56,22 +52,20 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUserById(Integer userId) {
         User user = this.userRepository.findById(userId)
                 .orElseThrow(()-> new ResourceNotFoundException("User", "Id", userId));
-        return this.userToDto(user);
+        return this.entityToDto(user);
     }
 
     @Override
     public List<UserDTO> getAllUsers() {
         List<User> users = this.userRepository.findAll();
-//      List<UserDTO> userDtos = users.stream().map(user -> this.userToDto(user)).collect(Collectors.toList());
-        return users.stream().map(this::userToDto).collect(Collectors.toList());
+        return users.stream().map(this::entityToDto).toList();
     }
 
-
-    public User dtoToUser(UserDTO userDTO){
+    public User dtoToEntity(UserDTO userDTO){
         return this.modelMapper.map(userDTO, User.class);
     }
 
-    public UserDTO userToDto(User user){
+    public UserDTO entityToDto(User user){
 //        UserDTO userDTO = new UserDTO();
 //        userDTO.setId(user.getId());
 //        userDTO.setName(user.getName());
